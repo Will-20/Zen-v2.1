@@ -1,7 +1,7 @@
-import React, {useRef, useState} from 'react';
-import {TouchableOpacity, StyleSheet, Text, View, Image} from 'react-native';
+import React, {useRef, useEffect, useState} from 'react';
+import {TouchableOpacity, StyleSheet, Text, View, Alert, RefreshControlComponent} from 'react-native';
 import Ripple from 'react-native-material-ripple';
-import {Canvas, useFrame} from '@react-three/fiber/native'
+import {Canvas, ReactThreeFiber, useFrame} from '@react-three/fiber/native'
 import {NavigationContainer, StackActions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {TimePicker} from 'react-native-simple-time-picker';
@@ -15,13 +15,20 @@ const textButtons = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'Jost_500Medium'
     },
+    small: {
+      fontSize: 20,
+      margin: 10,
+      color: "#fff",
+      textAlign: 'center',
+      fontFamily: 'Jost_500Medium'
+  },
 })
 
 const styles = StyleSheet.create({
     container: {
-        flex: 0.6,
+        flex: 0.8,
         justifyContent: "space-between",
-        backgroundColor: "#fff",
+        alignItems: 'center',
         padding: 20,
         margin: 10,
     },
@@ -42,11 +49,12 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 20,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
+        margin: 10,
         justifyContent: 'center', //Centered horizontally
         alignItems: 'center', //Centered vertically
     },
     bottom: {
-        flex: 1,
+        flex: 0.8,
         backgroundColor: "#00CC66",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -62,8 +70,9 @@ function Cylinder(props) {
     const mesh = useRef(null)
     const [hovered, setHover] = useState(false)
     const [active, setActive] = useState(false)
+    
 
-    // useFrame((state, delta) => (mesh.current.rotation.z += 0.1));
+    // useFrame((state, delta) => (setCandleHeight(this.props.ref.current)));
 
     return (<mesh
         {...props}
@@ -106,69 +115,72 @@ function Cone(props) {
     </mesh>)
 }
 
-const renderTime = ({ remainingTime }) => {
-  return (
-          <>
-            
-            <Text style={{fontSize: 100}}>{remainingTime}</Text>
-
-            <Canvas>
-              <ambientLight/>
-              <pointLight position={[10, 10, 10]}/>
-              <Cylinder position={[0, 0, 0]} color={'orange'} radius={0.4} height={3}/> 
-                {/*<OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />*/}
-             <Cylinder position={[0, 1.25, 0]} color={'black'} radius={0.01} height={0.3}/>
-              <Cone position={[0, 1.5, 0]} color={'red'} radius={0.25} height={0.5} radialSegments={15}/>
-              <Cone position={[0, 1.5, 0]} color={'orange'} radius={0.1} height={0.3} radialSegments={15}/>
-            </Canvas>
-            
-          </>
-    );
-}
-
 
 const Candle = ({navigation}) => {
 
-    const [hrs, setHrs] = useState('0');
-    const [mins, setMins] = useState('1');
-    const [secs, setSecs] = useState('1');
+    const [hrs, setHrs] = useState(1);
+    const [mins, setMins] = useState(0);
+    const [sessionTime, setSessionTime] = useState(0)
+    const [hidden, setHidden] = useState(false)
 
     const handleChange = (value) => {
-      const {hours, mins} = value
-      setHrs(hours);
-      setMins(mins);
+      setHrs(value.hours);
+      setMins(value.minutes);
     };
 
+    const renderTime = ({ remainingTime }) => {
+      return (
 
+        <Ripple style = {styles.middle} onPress={()=>beginSession(60 * parseInt(hrs) + parseInt(mins))}>
+                <Text style={textButtons.small}>End Session {remainingTime}</Text>
+        </Ripple>
+
+        );
+    }
+
+    function beginSession(mins) {
+      setSessionTime(mins)
+      setHidden(true)
+    }
+    
     return (
         <>
-             
-          <View style = {{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <CountdownCircleTimer
-            isPlaying
-            duration={120}
-            colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-            colorsTime={[7, 5, 2, 0]}
-            size = {350}
-            >
-            {renderTime}
-          </CountdownCircleTimer>
+          <Canvas>
+            <ambientLight/>
+            <pointLight position={[10, 10, 10]}/>
+            <Cylinder position={[0, 0, 0]} color={'orange'} radius={0.4} height={3} /> 
+              {/*<OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />*/}
+            <Cylinder position={[0, 1.25, 0]} color={'black'} radius={0.01} height={0.3}/>
+            <Cone position={[0, 1.5, 0]} color={'red'} radius={0.25} height={0.5} radialSegments={15}/>
+            <Cone position={[0, 1.5, 0]} color={'orange'} radius={0.1} height={0.3} radialSegments={15}/>
+          </Canvas>     
+          <View style = {styles.container}>
 
-            
-
-          </View>
-            
-
-
-            <View style={styles.container}>
-        
-              <Ripple style = {styles.bottom} onPress={()=>navigation.navigate("Candle")}>
+            { hidden && 
+              <CountdownCircleTimer
+              isPlaying
+              duration={sessionTime * 60}
+              colors={['#004777', '#F7B801', '#A30000', '#A30000']}
+              colorsTime={[sessionTime * 60, sessionTime * 45, sessionTime * 30, sessionTime * 15]}
+              size = {300}
+              >
+              {renderTime}
+            </CountdownCircleTimer> 
+            } 
+            { !hidden &&
+              <>
+              <Ripple style = {styles.bottom} onPress={()=>beginSession(60 * parseInt(hrs) + parseInt(mins))}>
                 <Text style={textButtons.normal}>Begin Session</Text>
               </Ripple>
 
-              <TimePicker style = {{flex: 0.3, justifyContent: 'center'}} value={ (hrs, mins) } onChange={handleChange} hoursUnit={'hrs'} minutesUnit={'min'} />
+              <TimePicker style = {{flex: 0.4, justifyContent: 'center'}} onChange={handleChange} hoursUnit={'hrs'} minutesUnit={'min'} />
+              </>
+            }
+
+           
+        
               
-            </View>
+        </View>
             
 
             
