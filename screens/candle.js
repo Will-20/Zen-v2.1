@@ -11,6 +11,7 @@ import {CountdownCircleTimer} from 'react-native-countdown-circle-timer'
 const textButtons = StyleSheet.create({
     normal: {
         fontSize: 40,
+        margin: 15,
         color: "#fff",
         textAlign: 'center',
         fontFamily: 'Jost_500Medium'
@@ -63,6 +64,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center', //Centered horizontally
         alignItems: 'center', //Centered vertically
     },
+    button: {
+      flex: 0.7,
+      backgroundColor: "#00CC66",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      borderBottomLeftRadius: 20,
+      borderBottomRightRadius: 20,
+      justifyContent: 'center', //Centered horizontally
+      alignItems: 'center', //Centered vertically
+  },
     image_style: {height: 250, width: 250, overflow: 'hidden', margin: 5},
 });
 
@@ -187,7 +198,7 @@ return (
             }
             {!hidden &&
                 <>
-                    <Ripple style={styles.bottom} onPress={() => beginSession(60 * parseInt(hrs) + parseInt(mins))}>
+                    <Ripple style={styles.button} onPress={() => beginSession(60 * parseInt(hrs) + parseInt(mins))}>
                         <Text style={textButtons.normal}>Begin Session</Text>
                     </Ripple>
 
