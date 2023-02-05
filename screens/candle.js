@@ -125,7 +125,7 @@ function Cone(props) {
     function getFlameHeight() {
       axios.get(baseurl).then(res => {
         console.log(res.data[-1]);
-      }).then(setHeight(res.data[-1] > 105 ? 0 : 1))
+      }).then(res => setHeight(res.data.at(-1) > 80 ? 0 : 1))
     }
 
 
