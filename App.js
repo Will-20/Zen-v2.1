@@ -11,6 +11,7 @@ import {useFonts, Jost_500Medium, Jost_500Medium_Italic} from "@expo-google-font
 import AppLoading from 'expo-app-loading';
 
 import {LogBox} from 'react-native';
+import EndSession from "./screens/end_session";
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();//Ignore all log notifications
@@ -43,6 +44,11 @@ export default function App() {
                             name='Intro'
                             component={Intro}
                             options={{title: 'Introduction'}}
+                        />
+                        <Stack.Screen
+                            name='EndSession'
+                            component={EndSession}
+                            options={{title: 'End Session'}}
                         />
 
                     </Stack.Navigator>
