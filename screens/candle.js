@@ -124,7 +124,7 @@ const Candle = ({navigation}) => {
 
         function getFlameHeight() {
 
-            setHeight(props.height * convertBPMToFlameHeight(110))
+            // setHeight(props.height * convertBPMToFlameHeight(110))
 
             axios.get(baseurl).then(res => {
                 console.log(res.data[res.data.length - 1]);
@@ -132,8 +132,10 @@ const Candle = ({navigation}) => {
                 console.log(props.height);
             }).then(res => setHeight(props.height * res.data[res.data.length - 1]))
             if (height < 0.01) {
-                endSession(mins)
                 clearInterval(inter)
+                clearInterval(flickerStop)
+                endSession(mins)
+
             }
         }
 
@@ -156,7 +158,7 @@ const Candle = ({navigation}) => {
 
         const [color, setColor] = useState(props.color);
 
-        setInterval(generateNextFlicker, 2000);
+        let flickerStop = setInterval(generateNextFlicker, 2000);
         if (height > 0.01) {
 
         }
