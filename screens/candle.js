@@ -7,7 +7,9 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {TimePicker} from 'react-native-simple-time-picker';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer'
 import {EventDispatcher} from "three";
+import axios from 'axios';
 
+const baseurl = "https://e0a3-2a0c-5bc0-40-2e33-a8df-8d85-2375-9ef1.eu.ngrok.io/api/hr"
 
 const textButtons = StyleSheet.create({
     normal: {
@@ -100,11 +102,15 @@ function Cylinder(props) {
 }
 
 
+
+
 function Cone(props) {
     const mesh = useRef(null)
     const [hovered, setHover] = useState(false)
     const [active, setActive] = useState(false)
     const [flicker, setFlicker] = useState(false)
+    const [height, setHeight] = useState(0)
+
 
     // useFrame((state, delta) => (mesh.current.rotation.z += 0.1));
 
@@ -112,21 +118,29 @@ function Cone(props) {
 
     function generateNextFlicker() {
         let x = Math.floor(Math.random() * 3);
-        console.log(x)
+        // console.log(x)
         setColor(colors[x])
+    }
+
+    function getFlameHeight() {
+      axios.get(baseurl).then(res => {
+        console.log(res.data[-1]);
+      }).then(setHeight(res.data[-1] > 105 ? 0 : 1))
     }
 
 
     const [color, setColor] = useState(props.color);
 
     setInterval(generateNextFlicker, 2000);
+    setInterval(getFlameHeight, 5000);
+
     return (<mesh
         position={props.position}
     >
         <coneBufferGeometry
             scale={[0, 0, 0]}
             attach="geometry"
-            args={[props.radius, props.height, props.radialSegments]}
+            args={[props.radius, height * props.height, props.radialSegments]}
         />
         <meshBasicMaterial
             attach="material"
@@ -164,7 +178,10 @@ const Candle = ({navigation}) => {
     function beginSession(mins) {
         setSessionTime(mins)
         setHidden(true)
+
     }
+
+
 
     function endSession(mins) {
 

@@ -2,6 +2,7 @@ import React, {useRef, useState} from 'react'
 import {Canvas, useFrame} from '@react-three/fiber/native'
 import {NavigationContainer, StackActions} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+// import {...} from 'terra-react'
 
 import Intro from './screens/intro';
 import Home from './screens/home';
@@ -18,7 +19,9 @@ LogBox.ignoreAllLogs();//Ignore all log notifications
 
 const Stack = createNativeStackNavigator();
 
+              
 export default function App() {
+
 
     let [fontsLoaded] = useFonts({
         Jost_500Medium, Jost_500Medium_Italic
