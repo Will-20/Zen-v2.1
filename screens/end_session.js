@@ -5,7 +5,11 @@ import Ripple from "react-native-material-ripple";
 import {styles} from "react-native-material-ripple/styles";
 import {ShaderLib as textButtons} from "three";
 
-const EndSession = ({navigation}) => {
+const EndSession = ({route, navigation}) => {
+
+    console.log(route.params)
+
+    const {minutes} = route.params;
 
     const textButtons = StyleSheet.create({
         normal: {
@@ -81,7 +85,7 @@ const EndSession = ({navigation}) => {
             </View>
 
             <View style={styles.middle} >
-                <Text style={{textAlign: "center", fontSize: 25, fontFamily: 'Jost_500Medium'}}>Total meditation time: 33</Text>
+                <Text style={{textAlign: "center", fontSize: 25, fontFamily: 'Jost_500Medium'}}>Meditation time: {Math.abs(Math.round(minutes / 60))} mins</Text>
                 <Text style={{textAlign: "center", fontSize: 25, fontFamily: 'Jost_500Medium'}}>Average heart rate: 66 bpm!</Text>
             </View>
 
