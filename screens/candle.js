@@ -2,7 +2,7 @@ import React, {useRef, useEffect, useState} from 'react';
 import {TouchableOpacity, StyleSheet, Text, View, Alert, RefreshControlComponent} from 'react-native';
 import Ripple from 'react-native-material-ripple';
 import {Canvas, ReactThreeFiber, useFrame} from '@react-three/fiber/native'
-import {NavigationContainer, StackActions} from '@react-navigation/native';
+import { NavigationActions } from 'react-navigation';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {TimePicker} from 'react-native-simple-time-picker';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer'
@@ -145,10 +145,19 @@ const Candle = ({navigation}) => {
     }
 
     function endSession(mins) {
+
+        console.log(sessionTime)
+        console.log(mins)
+
         navigation.reset({
             index: 0,
-            routes: [{name: 'EndSession'}],
-        })
+            routes: [{name: 'EndSession', params: { minutes: (sessionTime - mins*60) }}],
+        });
+        // const setParamsAction = NavigationActions.setParams({
+        //   params: { minutes: (sessionTime * 60 - mins) },
+        //   key: 'end_session',
+        // });
+        // navigation.dispatch(setParamsAction);
     }
 
 return (
