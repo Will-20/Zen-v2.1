@@ -8,8 +8,9 @@ import {TimePicker} from 'react-native-simple-time-picker';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer'
 import {EventDispatcher} from "three";
 import axios from 'axios';
+import end_session from "./end_session";
 
-const baseurl = "https://e0a3-2a0c-5bc0-40-2e33-a8df-8d85-2375-9ef1.eu.ngrok.io/api/hr"
+const baseurl = "https://3aa0-2a0c-5bc0-40-2e33-a8df-8d85-2375-9ef1.eu.ngrok.io/api/hr"
 
 const textButtons = StyleSheet.create({
     normal: {
@@ -80,79 +81,102 @@ const styles = StyleSheet.create({
     image_style: {height: 250, width: 250, overflow: 'hidden', margin: 5},
 });
 
-function Cylinder(props) {
-    const mesh = useRef(null)
-    const [hovered, setHover] = useState(false)
-    const [active, setActive] = useState(false)
-
-
-    // useFrame((state, delta) => (setCandleHeight(this.props.ref.current)));
-
-    return (<mesh
-        {...props}
-        ref={mesh}
-        scale={0.75}
-        // scale={active ? 1.5 : 1}
-        onClick={(event) => setActive(!active)}
-        onPointerOver={(event) => setHover(true)}
-        onPointerOut={(event) => setHover(false)}>
-        <cylinderGeometry attach="geometry" args={[props.radius, props.radius, props.height]}/>
-        <meshStandardMaterial color={props.color}/>
-    </mesh>)
-}
-
-
-
-
-function Cone(props) {
-    const mesh = useRef(null)
-    const [hovered, setHover] = useState(false)
-    const [active, setActive] = useState(false)
-    const [flicker, setFlicker] = useState(false)
-    const [height, setHeight] = useState(0)
-
-
-    // useFrame((state, delta) => (mesh.current.rotation.z += 0.1));
-
-    const colors = ['red', 'orange', 'yellow']
-
-    function generateNextFlicker() {
-        let x = Math.floor(Math.random() * 3);
-        // console.log(x)
-        setColor(colors[x])
-    }
-
-    function getFlameHeight() {
-      axios.get(baseurl).then(res => {
-        console.log(res.data[-1]);
-      }).then(res => setHeight(res.data.at(-1) > 80 ? 0 : 1))
-    }
-
-
-    const [color, setColor] = useState(props.color);
-
-    setInterval(generateNextFlicker, 2000);
-    setInterval(getFlameHeight, 5000);
-
-    return (<mesh
-        position={props.position}
-    >
-        <coneBufferGeometry
-            scale={[0, 0, 0]}
-            attach="geometry"
-            args={[props.radius, height * props.height, props.radialSegments]}
-        />
-        <meshBasicMaterial
-            attach="material"
-            color={color}
-            opacity={0.5}
-            transparent={true}
-        />
-    </mesh>)
-}
-
-
 const Candle = ({navigation}) => {
+
+    function Cylinder(props) {
+        const mesh = useRef(null)
+        const [hovered, setHover] = useState(false)
+        const [active, setActive] = useState(false)
+
+
+        // useFrame((state, delta) => (setCandleHeight(this.props.ref.current)));
+
+        return (<mesh
+            {...props}
+            ref={mesh}
+            scale={0.75}
+            // scale={active ? 1.5 : 1}
+            onClick={(event) => setActive(!active)}
+            onPointerOver={(event) => setHover(true)}
+            onPointerOut={(event) => setHover(false)}>
+            <cylinderGeometry attach="geometry" args={[props.radius, props.radius, props.height]}/>
+            <meshStandardMaterial color={props.color}/>
+        </mesh>)
+    }
+
+    function Cone(props) {
+        const mesh = useRef(null)
+        const [hovered, setHover] = useState(false)
+        const [active, setActive] = useState(false)
+        const [flicker, setFlicker] = useState(false)
+        const [height, setHeight] = useState(2)
+
+
+        // useFrame((state, delta) => (mesh.current.rotation.z += 0.1));
+
+        const colors = ['red', 'orange', 'yellow']
+
+        function generateNextFlicker() {
+            let x = Math.floor(Math.random() * 3);
+            // console.log(x)
+            setColor(colors[x])
+        }
+
+        function getFlameHeight() {
+
+            setHeight(props.height * convertBPMToFlameHeight(110))
+
+            axios.get(baseurl).then(res => {
+                console.log(res.data[res.data.length - 1]);
+                console.log(height);
+                console.log(props.height);
+            }).then(res => setHeight(props.height * res.data[res.data.length - 1]))
+            if (height < 0.01) {
+                endSession(mins)
+                clearInterval(inter)
+            }
+        }
+
+        function convertBPMToFlameHeight(bpm_flt) {
+            let bpm = parseInt(bpm_flt)
+            if (bpm > 60 && bpm < 75) {
+                return 6
+            }
+            if (bpm >= 75 && bpm < 85) {
+                return 4
+            }
+            if (bpm >= 85 && bpm < 100) {
+                return 2
+            }
+            if (bpm >= 100) {
+                return 0
+            }
+            return 0
+        }
+
+        const [color, setColor] = useState(props.color);
+
+        setInterval(generateNextFlicker, 2000);
+        if (height > 0.01) {
+
+        }
+        let inter = setInterval(getFlameHeight, 5000);
+
+        return (<mesh
+            position={props.position}>
+            <coneBufferGeometry
+                scale={[0, 0, 0]}
+                attach="geometry"
+                args={[props.radius, height * props.height, props.radialSegments]}
+            />
+            <meshBasicMaterial
+                attach="material"
+                color={color}
+                opacity={0.5}
+                transparent={true}
+            />
+        </mesh>)
+    }
 
     const [hrs, setHrs] = useState(1);
     const [mins, setMins] = useState(0);
@@ -180,8 +204,6 @@ const Candle = ({navigation}) => {
         setHidden(true)
 
     }
-
-
 
     function endSession(mins) {
 
